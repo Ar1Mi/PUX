@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Multimedia tags test</title>
+	<style>
+		:root {
+			--bg: #f4f5f7;
+			--card: #ffffff;
+			--ink: #1d2433;
+			--muted: #5d6677;
+			--accent: #2e75b6;
+			--bar: #c9d6e8;
+			--bar-fill: #2e75b6;
+		}
+
+		* { box-sizing: border-box; }
+
+		body {
+			margin: 0;
+			padding: 32px 16px 48px;
+			background: var(--bg);
+			color: var(--ink);
+			font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+			line-height: 1.5;
+		}
+
+		main {
+			max-width: 760px;
+			margin: 0 auto;
+			display: grid;
+			gap: 24px;
+		}
+
+		section {
+			background: var(--card);
+			border-radius: 12px;
+			padding: 24px;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+		}
+
+		h1 { font-size: 24px; margin: 0 0 4px; }
+		h2 { font-size: 18px; margin: 0 0 4px; }
+		.hint { color: var(--muted); margin: 0 0 20px; font-size: 14px; }
+
+		/* ---------- Zadanie 1: zwierzęta ---------- */
+
+		.animals {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			/* miejsce na powiększenie 2x, żeby obrazki na siebie nie nachodziły */
+			gap: 24px;
+			padding: 50px 0;
+			justify-items: center;
+		}
+
+		.animalButton {
+			width: 100px;          /* jednakowa szerokość ...           */
+			height: auto;          /* ... z zachowaniem proporcji       */
+			cursor: pointer;
+			transform: scale(1);
+			transform-origin: center center;
+			/* powrót do rozmiaru pierwotnego: 0.5 s
+			   (czas powiększania ustawia skrypt na długość nagrania) */
+			transition-property: transform;
+			transition-duration: .5s;
+			transition-timing-function: ease-out;
+			border-radius: 8px;
+			position: relative;
+		}
+
+		.animalButton.playing {
+			transform: scale(2);
+			transition-timing-function: linear;
+			z-index: 1;
+		}
+
+		.animalButton:focus-visible {
+			outline: 3px solid var(--accent);
+			outline-offset: 4px;
+		}
+
+		.animal-name {
+			display: block;
+			text-align: center;
+			font-size: 13px;
+			color: var(--muted);
+			margin-top: 8px;
+		}
+
+		/* ---------- Zadanie 2: wideo ---------- */
+
+		.player { width: 100%; max-width: 640px; margin: 0 auto; }
+
+		video {
+			display: block;
+			width: 100%;
+			border-radius: 8px 8px 0 0;
+			background: #000;
+		}
+
+		.progressBar {
+			position: relative;
+			width: 100%;               /* szerokość elementu video */
+			height: 20px;
+			background-color: var(--bar);
+			border-radius: 0 0 8px 8px;
+			cursor: pointer;
+			overflow: hidden;
+		}
+
+		.progressBar:focus-visible {
+			outline: 3px solid var(--accent);
+			outline-offset: 2px;
+		}
+
+		/* dodatkowo: wizualizacja bieżącej pozycji odtwarzania */
+		.progressFill {
+			position: absolute;
+			inset: 0 auto 0 0;
+			width: 0;
+			background: var(--bar-fill);
+			pointer-events: none;
+		}
+
+		/* dodatkowo: znacznik miejsca pod kursorem */
+		.progressHover {
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			width: 2px;
+			background: rgba(0, 0, 0, .55);
+			pointer-events: none;
+			display: none;
+		}
+
+		.progressBar:hover .progressHover { display: block; }
+
+		.time {
+			display: flex;
+			justify-content: space-between;
+			font-size: 13px;
+			color: var(--muted);
+			margin-top: 6px;
+			font-variant-numeric: tabular-nums;
+		}
+
+		footer { text-align: center; font-size: 12px; color: var(--muted); }
+	</style>
+</head>
+
+<body>
+<main>
+	<header>
+		<h1>Elementy multimedialne</h1>
+		<p class="hint">Laboratorium 5 – zadania 1 i 2</p>
+	</header>
+
+	<!-- ===================== Zadanie 1 ===================== -->
+	<section aria-labelledby="z1">
+		<h2 id="z1">Zadanie 1. Odgłosy zwierząt</h2>
+		<p class="hint">Kliknij zwierzę (lub zaznacz je klawiszem Tab i naciśnij Enter), aby usłyszeć jego odgłos.</p>
+
+		<!-- elementy audio bez atrybutu controls – nie są widoczne na stronie -->
+		<audio id="soundElephant" preload="auto">
+			<source src="audio/elephant.mp3" type="audio/mpeg">
+		</audio>
+		<audio id="soundHorse" preload="auto">
+			<source src="audio/horse.ogg" type="audio/ogg">
+			<source src="audio/horse.mp3" type="audio/mpeg">
+		</audio>
+		<audio id="soundRooster" preload="auto">
+			<source src="audio/rooster.mp3" type="audio/mpeg">
+		</audio>
+		<audio id="soundFrog" preload="auto">
+			<source src="audio/frog.wav" type="audio/wav">
+		</audio>
+
+		<div class="animals">
+			<figure style="margin:0">
+				<img id="Elephant" class="animalButton" src="images/elephant.svg" alt="Słoń" role="button" tabindex="0">
+				<figcaption class="animal-name">Słoń</figcaption>
+			</figure>
+			<figure style="margin:0">
+				<img id="Horse" class="animalButton" src="images/horse.svg" alt="Koń" role="button" tabindex="0">
+				<figcaption class="animal-name">Koń</figcaption>
+			</figure>
+			<figure style="margin:0">
+				<img id="Rooster" class="animalButton" src="images/rooster.svg" alt="Kogut" role="button" tabindex="0">
+				<figcaption class="animal-name">Kogut</figcaption>
+			</figure>
+			<figure style="margin:0">
+				<img id="Frog" class="animalButton" src="images/frog.svg" alt="Żaba" role="button" tabindex="0">
+				<figcaption class="animal-name">Żaba</figcaption>
+			</figure>
+		</div>
+	</section>
+
+	<!-- ===================== Zadanie 2 ===================== -->
+	<section aria-labelledby="z2">
+		<h2 id="z2">Zadanie 2. Zewnętrzny pasek przewijania</h2>
+		<p class="hint">Kliknij w dowolnym miejscu niebieskiej belki, aby przeskoczyć do odpowiedniego momentu filmu. Belka obsługuje też strzałki ← → oraz klawisze Home / End.</p>
+
+		<div class="player">
+			<video id="video" controls preload="metadata">
+				<source src="video/video.mp4" type="video/mp4">
+				<source src="video/video.mkv" type="video/x-matroska">
+				Twoja przeglądarka nie obsługuje elementu video.
+			</video>
+			<div id="videoProgressBar" class="progressBar"
+			     role="slider" tabindex="0"
+			     aria-label="Pozycja odtwarzania filmu"
+			     aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+				<div class="progressFill" id="progressFill"></div>
+				<div class="progressHover" id="progressHover"></div>
+			</div>
+			<div class="time">
+				<span id="timeCurrent">0:00</span>
+				<span id="timeTotal">0:00</span>
+			</div>
+		</div>
+	</section>
+
+	<footer>
+		Elephant, Frog by Tatiana Belkina; Horse by Samy Menai – the Noun Project.
+	</footer>
+</main>
+
+<script>
+	/* =========================================================
+	   Zadanie 1
+	   - kliknięcie obrazka odtwarza plik audio o tej samej nazwie,
+	   - obrazek powiększa się do skali 2x w czasie równym długości nagrania,
+	   - po zdarzeniu "ended" wraca do rozmiaru pierwotnego w 0.5 s.
+	   ========================================================= */
+	const RETURN_TIME = 0.5; // s
+
+	function animalClicked(img) {
+		const audio = document.getElementById("sound" + img.id);
+		if (!audio) return;
+
+		const start = () => {
+			// czas tranzycji = długość ścieżki audio
+			img.style.transitionDuration = audio.duration + "s";
+			img.classList.add("playing");
+			audio.currentTime = 0;
+			audio.play();
+		};
+
+		// kliknięcie w trakcie odtwarzania: zaczynamy od nowa
+		if (!audio.paused) {
+			audio.pause();
+			img.style.transitionDuration = "0s";
+			img.classList.remove("playing");
+			void img.offsetWidth; // wymuszenie przeliczenia stylów
+		}
+
+		// długość nagrania jest znana dopiero po wczytaniu metadanych
+		if (isNaN(audio.duration)) {
+			audio.addEventListener("loadedmetadata", start, { once: true });
+			audio.load();
+		} else {
+			start();
+		}
+	}
+
+	document.querySelectorAll(".animalButton").forEach(img => {
+		const audio = document.getElementById("sound" + img.id);
+
+		img.addEventListener("click", () => animalClicked(img));
+		img.addEventListener("keydown", e => {
+			if (e.key === "Enter" || e.key === " ") {
+				e.preventDefault();
+				animalClicked(img);
+			}
+		});
+
+		// zdarzenie zakończenia odtwarzania
+		audio.addEventListener("ended", () => {
+			img.style.transitionDuration = RETURN_TIME + "s";
+			img.classList.remove("playing");
+		});
+	});
+
+	/* =========================================================
+	   Zadanie 2
+	   - kliknięcie belki ustawia currentTime proporcjonalnie
+	     do położenia kliknięcia w osi poziomej.
+	   ========================================================= */
+	const video = document.getElementById("video");
+	const bar = document.getElementById("videoProgressBar");
+	const fill = document.getElementById("progressFill");
+	const hover = document.getElementById("progressHover");
+	const tCur = document.getElementById("timeCurrent");
+	const tTot = document.getElementById("timeTotal");
+
+	const fmt = s => {
+		if (!isFinite(s)) return "0:00";
+		const m = Math.floor(s / 60);
+		const sec = Math.floor(s % 60);
+		return m + ":" + String(sec).padStart(2, "0");
+	};
+
+	function seekToRatio(ratio) {
+		if (!isFinite(video.duration)) return;
+		ratio = Math.min(Math.max(ratio, 0), 1);
+		video.currentTime = ratio * video.duration;
+	}
+
+	bar.addEventListener("click", e => {
+		const rect = bar.getBoundingClientRect();
+		const x = e.clientX - rect.left;    // pozycja kliknięcia w belce
+		seekToRatio(x / rect.width);
+	});
+
+	bar.addEventListener("mousemove", e => {
+		const rect = bar.getBoundingClientRect();
+		const x = e.clientX - rect.left;
+		hover.style.left = x + "px";
+		bar.title = fmt((x / rect.width) * video.duration);
+	});
+
+	bar.addEventListener("keydown", e => {
+		const step = 5; // s
+		const keys = {
+			ArrowRight: video.currentTime + step,
+			ArrowLeft: video.currentTime - step,
+			Home: 0,
+			End: video.duration
+		};
+		if (e.key in keys) {
+			e.preventDefault();
+			seekToRatio(keys[e.key] / video.duration);
+		}
+	});
+
+	function render() {
+		const ratio = video.duration ? video.currentTime / video.duration : 0;
+		fill.style.width = (ratio * 100) + "%";
+		bar.setAttribute("aria-valuenow", Math.round(ratio * 100));
+		bar.setAttribute("aria-valuetext", fmt(video.currentTime) + " z " + fmt(video.duration));
+		tCur.textContent = fmt(video.currentTime);
+		tTot.textContent = fmt(video.duration);
+	}
+
+	["loadedmetadata", "timeupdate", "seeked", "durationchange"].forEach(ev =>
+		video.addEventListener(ev, render));
+</script>
+</body>
+</html>

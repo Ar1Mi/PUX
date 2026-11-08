@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Moving blocks on stripped background</title>
+	<style>
+		html {
+		  background: #999;
+		  padding: 0;
+		}
+
+		body {
+		  margin: 0;
+		  padding: 0;
+		  min-height: 100vh;
+		  font-family: Arial, Helvetica, sans-serif;
+		}
+
+		/* ---------- panel przycisków ---------- */
+
+		.toolbar {
+		  display: flex;
+		  justify-content: center;
+		  flex-wrap: wrap;
+		  gap: 6px;
+		  padding: 18px 8px;
+		}
+
+		/* Przycisk WYŁĄCZONY – wypukły:
+		   jasny gradient u góry, ciemniejszy u dołu (światło pada z góry) */
+		.toggle {
+		  min-width: 150px;
+		  padding: 7px 22px;
+		  border: 1px solid #8e9a80;
+		  border-radius: 8px;
+		  background-color: #c6d1b8;                    /* kolor zapasowy */
+		  background: linear-gradient(to bottom,
+		              #f3f7ee 0%, #d6dfca 45%, #b9c6a8 55%, #a4b291 100%);
+		  box-shadow: inset 0 1px 0 rgba(255,255,255,.8),
+		              0 2px 3px rgba(0,0,0,.35);
+		  color: #4a4f44;
+		  font-size: 16px;
+		  font-weight: bold;
+		  text-shadow: 0 1px 0 rgba(255,255,255,.8);
+		  cursor: pointer;
+		  transition: filter .15s;
+		}
+
+		.toggle:hover { filter: brightness(1.05); }
+
+		.toggle:focus-visible {
+		  outline: 3px solid #1f4e79;
+		  outline-offset: 2px;
+		}
+
+		/* Przycisk WŁĄCZONY – wklęsły:
+		   gradient odwrócony (ciemniej u góry), wewnętrzny cień, tekst "wciśnięty" */
+		.toggle[aria-pressed="true"] {
+		  background-color: #a4b291;
+		  background: linear-gradient(to bottom,
+		              #93a17f 0%, #aab896 45%, #bfcbaf 55%, #d9e2cf 100%);
+		  box-shadow: inset 0 2px 5px rgba(0,0,0,.45),
+		              0 1px 0 rgba(255,255,255,.4);
+		  color: #2d3128;
+		  text-shadow: 0 -1px 0 rgba(255,255,255,.35);
+		  padding-top: 8px;
+		  padding-bottom: 6px;
+		}
+
+		/* ---------- tor i bloki (z materiałów) ---------- */
+
+		#track {
+		  background-color: #999;
+		  background-image: linear-gradient(90deg, #000 0%, #000 50%, #fff 50%, #fff 100%);
+		  background-size: 50px 50px;
+		  border: 1px solid #000;
+		  width: 675px;
+		  height: 225px;
+		  position: absolute;
+		  top: 0;
+		  right: 0;
+		  bottom: 0;
+		  left: 0;
+		  margin: auto;
+		  padding: 0;
+		}
+
+		/* tło wyłączone – widać, że bloki poruszają się równo */
+		#track.proof {
+		  background-image: none;
+		}
+
+		.block {
+		  width: 100px;
+		  height: 40px;
+		  position: absolute;
+		  left: 0;
+		  animation: illusion 9s linear infinite alternate;
+		  box-sizing: border-box;   /* ramka nie zmienia wymiarów bloku */
+		}
+		.block.light {
+		  background: #fff;
+		  top: 10px;
+		}
+		.block.dark {
+		  background: #000;
+		  bottom: 10px;
+		}
+
+		/* ramki włączane przyciskami */
+		#track.border-light .block.light,
+		#track.border-dark  .block.dark {
+		  border: 2px solid #e00000;
+		}
+
+		@keyframes illusion {
+		  from {
+			left: 0;
+		  }
+		  to {
+			left: calc(100% - 100px);
+		  }
+		}
+	</style>
+</head>
+
+<body>
+<div class="toolbar" role="group" aria-label="Ustawienia złudzenia">
+	<button type="button" class="toggle" data-class="proof"        aria-pressed="false">Background</button>
+	<button type="button" class="toggle" data-class="border-light" aria-pressed="false">White box border</button>
+	<button type="button" class="toggle" data-class="border-dark"  aria-pressed="false">Black box border</button>
+</div>
+
+<div id="track">
+  <div class="block light"></div>
+  <div class="block dark"></div>
+</div>
+
+<script>
+	const track = document.getElementById("track");
+
+	/* Stan przycisku "Background" odzwierciedla to, czy tło jest widoczne,
+	   więc na starcie (tło widoczne) przycisk jest wciśnięty. */
+	function sync(btn) {
+		const cls = btn.dataset.class;
+		const on = cls === "proof"
+			? !track.classList.contains("proof")   // przycisk = "tło włączone"
+			: track.classList.contains(cls);
+		btn.setAttribute("aria-pressed", String(on));
+	}
+
+	document.querySelectorAll(".toggle").forEach(btn => {
+		sync(btn);
+		btn.addEventListener("click", () => {
+			track.classList.toggle(btn.dataset.class);
+			sync(btn);
+		});
+	});
+</script>
+</body>
+</html>
