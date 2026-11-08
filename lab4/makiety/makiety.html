@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seans na dziś – mikrocopy przed i po</title>
+<style>
+  :root {
+    --bg: #f6f6f8; --surface: #fff; --ink: #1c1b22; --muted: #6b6875; --line: #dedde3;
+    --primary: #5b4bdb; --primary-ink: #fff; --primary-soft: #ecebfb;
+    --gold: #f2b544; --error: #c62828; --error-soft: #fdecec; --success: #2e7d32;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px; background: #e9e8ee; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--ink); }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .lead { color: var(--muted); margin: 0 0 24px; }
+
+  /* ---------- para przed/po ---------- */
+  .pair { display: inline-flex; gap: 28px; padding: 20px 24px 24px; background: #e9e8ee; margin: 0 0 32px; vertical-align: top; }
+  .pair > .col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .pair-title { font-size: 15px; font-weight: 700; color: #3a3846; margin: 0 0 8px; }
+  .tag { font: 700 12px/1 Arial, sans-serif; letter-spacing: .08em; padding: 6px 12px; border-radius: 999px; }
+  .tag.before { background: #f6d5d5; color: #8e1c1c; }
+  .tag.after  { background: #d4ecd6; color: #1e5c22; }
+
+  /* ---------- telefon ---------- */
+  .phone { width: 320px; height: 640px; background: var(--bg); border: 8px solid #26242e; border-radius: 36px; overflow: hidden; position: relative; display: flex; flex-direction: column; font-size: 14px; line-height: 1.4; }
+  .status { height: 26px; flex: none; display: flex; justify-content: space-between; align-items: center; padding: 0 18px; font-size: 11px; font-weight: 600; color: var(--ink); }
+  .appbar { height: 48px; flex: none; display: flex; align-items: center; gap: 10px; padding: 0 16px; font-weight: 700; font-size: 17px; }
+  .appbar .back { font-size: 20px; color: var(--muted); }
+  .content { flex: 1; padding: 4px 16px 16px; overflow: hidden; display: flex; flex-direction: column; gap: 12px; position: relative; }
+  .content > * { flex-shrink: 0; }
+  .content > .spacer, .content > .empty { flex-shrink: 1; }
+  .tabbar { height: 56px; flex: none; display: flex; border-top: 1px solid var(--line); background: var(--surface); }
+  .tabbar span { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; color: var(--muted); gap: 2px; }
+  .tabbar span::before { content: ""; width: 18px; height: 18px; border-radius: 5px; background: #cfcdd6; }
+  .tabbar span.on { color: var(--primary); font-weight: 700; }
+  .tabbar span.on::before { background: var(--primary); }
+
+  /* ---------- komponenty ---------- */
+  .h { font-size: 20px; font-weight: 700; line-height: 1.25; margin: 0; }
+  .sub { color: var(--muted); margin: 0; }
+  .small { font-size: 12px; color: var(--muted); }
+  .btn { display: flex; align-items: center; justify-content: center; height: 48px; border-radius: var(--radius); font-weight: 700; font-size: 15px; border: 1.5px solid transparent; text-align: center; padding: 0 12px; }
+  .btn.primary { background: var(--primary); color: var(--primary-ink); }
+  .btn.secondary { background: var(--surface); color: var(--primary); border-color: var(--primary); }
+  .btn.ghost { color: var(--primary); height: 40px; }
+  .btn.danger { background: var(--surface); color: var(--error); border-color: var(--error); }
+  .btn.danger-fill { background: var(--error); color: #fff; }
+  .row { display: flex; gap: 10px; }
+  .row > * { flex: 1; }
+  .row > .btn { white-space: nowrap; padding: 0 6px; }
+  .label { font-size: 13px; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+  .field { height: 46px; border: 1.5px solid #bdbac6; border-radius: 10px; background: var(--surface); display: flex; align-items: center; padding: 0 12px; color: var(--ink); }
+  .field.ph { color: #9a97a5; }
+  .field.err { border-color: var(--error); background: #fffafa; }
+  .help { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .help.err { color: var(--error); display: flex; gap: 6px; align-items: flex-start; }
+  .help.err::before { content: "!"; flex: none; width: 15px; height: 15px; border-radius: 50%; background: var(--error); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+  .info { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--muted); color: var(--muted); font-size: 10px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; }
+  .tooltip { background: #2c2a35; color: #fff; font-size: 12px; border-radius: 8px; padding: 8px 10px; position: relative; margin-top: 6px; }
+  .tooltip::before { content: ""; position: absolute; top: -5px; left: 18px; border: 5px solid transparent; border-top: 0; border-bottom-color: #2c2a35; }
+  .checklist { font-size: 12px; display: grid; gap: 2px; margin-top: 4px; }
+  .checklist .ok { color: var(--success); }
+  .checklist .ok::before { content: "✓ "; font-weight: 700; }
+  .checklist .no { color: var(--muted); }
+  .checklist .no::before { content: "○ "; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { padding: 7px 12px; border-radius: 999px; border: 1.5px solid #c9c6d2; background: var(--surface); font-size: 13px; }
+  .chip.on { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); font-weight: 600; }
+  .poster { background: repeating-linear-gradient(135deg, #d9d7df 0 10px, #e3e1e8 10px 20px); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #8e8b98; font-size: 11px; }
+  .card { background: var(--surface); border-radius: var(--radius); padding: 12px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+  .rating { color: #8a5d00; font-weight: 700; font-size: 13px; }
+  .rating::before { content: "★ "; color: var(--gold); }
+  .pill { display: inline-block; font-size: 11px; padding: 3px 8px; border-radius: 6px; background: #eeedf2; color: #4a4756; font-weight: 600; }
+  .alert { border-radius: 10px; padding: 12px; display: flex; gap: 10px; font-size: 13px; }
+  .alert.err { background: var(--error-soft); color: #7a1a1a; }
+  .alert.neutral { background: #eeedf2; color: #3a3846; }
+  .alert.tech { background: #fff; border: 1px solid #c9c6d2; font-family: Menlo, Consolas, monospace; font-size: 12px; color: #b00020; }
+  .alert b { display: block; margin-bottom: 2px; }
+  .toast { position: absolute; left: 12px; right: 12px; bottom: 12px; background: #2c2a35; color: #fff; border-radius: 10px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; gap: 10px; }
+  .toast .act { color: #c9c2ff; font-weight: 700; }
+  .scrim { position: absolute; inset: 0; background: rgba(20,18,28,.55); display: flex; align-items: center; justify-content: center; padding: 18px; }
+  .dialog { background: var(--surface); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; width: 100%; }
+  .dialog .h { font-size: 18px; }
+  .empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px; padding: 0 8px; }
+  .illu { width: 112px; height: 112px; border-radius: 50%; background: var(--primary-soft); display: flex; align-items: center; justify-content: center; font-size: 46px; }
+  .dots { display: flex; gap: 6px; justify-content: center; }
+  .dots i { width: 8px; height: 8px; border-radius: 50%; background: #cfcdd6; }
+  .dots i.on { background: var(--primary); width: 22px; border-radius: 4px; }
+  .spacer { flex: 1; }
+  .center { text-align: center; }
+  .tech-text { font-family: Menlo, Consolas, monospace; font-size: 12px; }
+
+  /* ---------- znaczniki identyfikatorów zmian ---------- */
+  .a { position: relative; }
+  .ann { position: absolute; top: -9px; right: -9px; z-index: 5; background: #ff8a00; color: #fff; font: 700 10px/1 Arial, sans-serif; padding: 4px 5px; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,.3); }
+  .ann.l { right: auto; left: -9px; }
+</style>
+</head>
+<body>
+<h1>Seans na dziś – warstwa tekstowa przed i po audycie</h1>
+<p class="lead">Laboratorium 4. Pomarańczowe znaczniki (np. C1, E4) odpowiadają identyfikatorom zmian w raporcie.</p>
+
+<!-- =============== 1. ONBOARDING =============== -->
+<section class="pair" id="pair-onboarding">
+  <div class="col">
+    <div class="tag before">PRZED</div>
+    <div class="phone">
+      <div class="status"><span>20:41</span><span>●●● 82%</span></div>
+      <div class="content" style="padding-top:24px">
+        <div class="poster" style="height:200px">ilustracja</div>
+        <p class="h a">Witamy w aplikacji Seans na dziś!<span class="ann">P4</span></p>
+        <p class="sub">Aby korzystać z aplikacji, musisz skonfigurować profil użytkownika oraz zaakceptować regulamin i politykę prywatności.</p>
+        <div class="spacer"></div>
+        <div class="dots"><i class="on"></i><i></i><i></i></div>
+        <div class="btn primary a">Dalej<span class="ann">C5</span></div>
+        <div class="btn ghost">Pomiń</div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="tag after">PO</div>
+    <div class="phone">
+      <div class="status"><span>20:41</span><span>●●● 82%</span></div>
+      <div class="content" style="padding-top:24px">
+        <div class="poster" style="height:200px">ilustracja</div>
+        <p class="h a">Film na wieczór w minutę<span class="ann">P4</span></p>
+        <p class="sub">Powiedz, na co masz ochotę i ile masz czasu. Pokażemy 5 tytułów, które obejrzysz na swoich platformach.</p>
+        <div class="spacer"></div>
+        <div class="dots"><i class="on"></i><i></i><i></i></div>
+        <div class="btn primary a">Wybierz swoje platformy<span class="ann">C5</span></div>
+        <div class="btn ghost">Pomiń, ustawię później</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 2. EKRAN DZIŚ – KONTEKST =============== -->
+<section class="pair" id="pair-today">
+  <div class="col">
+    <div class="tag before">PRZED</div>
+    <div class="phone">
+      <div class="status"><span>20:42</span><span>●●● 82%</span></div>
+      <div class="appbar">Dashboard</div>
+      <div class="content">
+        <div class="a"><div class="label">Mood</div><span class="ann">F5</span>
+          <div class="chips"><span class="chip on">Comedy</span><span class="chip">Drama</span><span class="chip">Thriller</span><span class="chip">Sci-fi</span></div></div>
+        <div class="a"><div class="label">Max runtime (min)</div>
+          <div class="field">120</div></div>
+        <div><div class="label">Tryb</div>
+          <div class="chips"><span class="chip on">Single</span><span class="chip">Multi</span></div></div>
+        <div class="a"><div class="label">Providers</div><span class="ann">F3</span>
+          <div class="field ph">Wybierz…</div></div>
+        <div class="spacer"></div>
+        <div class="btn primary a">Dalej<span class="ann">C1</span></div>
+      </div>
+      <div class="tabbar"><span class="on">Home</span><span>Szukaj</span><span>Watchlist</span><span>Profil</span></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="tag after">PO</div>
+    <div class="phone">
+      <div class="status"><span>20:42</span><span>●●● 82%</span></div>
+      <div class="appbar">Co dziś oglądamy?</div>
+      <div class="content">
+        <div class="a"><div class="label">Na co masz ochotę?</div><span class="ann">F5</span>
+          <div class="chips"><span class="chip on">Coś lekkiego</span><span class="chip">Wzruszenie</span><span class="chip">Napięcie</span><span class="chip">Odlot</span></div></div>
+        <div><div class="label">Ile masz czasu?</div>
+          <div class="chips"><span class="chip">do 1,5 h</span><span class="chip on">do 2 h</span><span class="chip">bez limitu</span></div></div>
+        <div><div class="label">Z kim oglądasz?</div>
+          <div class="chips"><span class="chip on">Sam(a)</span><span class="chip">We dwoje</span><span class="chip">W grupie</span></div></div>
+        <div class="a"><div class="label">Twoje platformy</div><span class="ann">F3</span>
+          <div class="chips"><span class="chip on">Netflix</span><span class="chip on">Max</span><span class="chip">+ dodaj</span></div>
+          <div class="help">Pokażemy tylko to, co obejrzysz bez dopłat.</div></div>
+        <div class="spacer"></div>
+        <div class="btn primary a">Pokaż 5 propozycji<span class="ann">C1</span></div>
+      </div>
+      <div class="tabbar"><span class="on">Dziś</span><span>Szukaj</span><span>Na później</span><span>Profil</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 3. KARTA TYTUŁU – BRAK DOSTĘPNOŚCI =============== -->
+<section class="pair" id="pair-title">
+  <div class="col">
+    <div class="tag before">PRZED</div>
+    <div class="phone">
+      <div class="status"><span>20:44</span><span>●●● 81%</span></div>
+      <div class="appbar"><span class="back">←</span>Szczegóły</div>
+      <div class="content">
+        <div class="row" style="flex:none">
+          <div class="poster" style="height:150px; flex:0 0 100px">plakat</div>
+          <div style="flex:1"><p class="h" style="font-size:17px">Diuna: Część druga</p><p class="small">2024 · 2 h 46 min · Sci-fi</p><p class="rating">8,1</p></div>
+        </div>
+        <div class="alert tech a">ERR_NO_PROVIDERS (region=PL, code 204)<span class="ann">E4</span></div>
+        <p class="small">Fabuła: Paul Atryda jednoczy się z Chani i Fremenami…</p>
+        <div class="spacer"></div>
+        <div class="row"><div class="btn secondary a">Dodaj<span class="ann l">C2</span></div><div class="btn primary">Przejdź</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="tag after">PO</div>
+    <div class="phone">
+      <div class="status"><span>20:44</span><span>●●● 81%</span></div>
+      <div class="appbar"><span class="back">←</span></div>
+      <div class="content">
+        <div class="row" style="flex:none">
+          <div class="poster" style="height:150px; flex:0 0 100px">plakat</div>
+          <div style="flex:1"><p class="h" style="font-size:17px">Diuna: Część druga</p><p class="small">2024 · 2 h 46 min · Sci-fi</p><p class="rating">8,1</p></div>
+        </div>
+        <div class="alert neutral a"><div><b>Nie ma go teraz na Netflix ani Max</b>Możesz go wypożyczyć w Rakuten TV (od 14,99 zł) albo poczekać – damy znać, gdy pojawi się na Twojej platformie.</div><span class="ann">E4</span></div>
+        <p class="small">Paul Atryda jednoczy się z Chani i Fremenami…</p>
+        <div class="spacer"></div>
+        <div class="btn primary a">Wypożycz w Rakuten TV<span class="ann">C2</span></div>
+        <div class="btn secondary">Powiadom mnie, gdy będzie</div>
+        <div class="btn ghost">Zapisz na później</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 4. REJESTRACJA – FORMULARZ =============== -->
+<section class="pair" id="pair-form">
+  <div class="col">
+    <div class="tag before">PRZED</div>
+    <div class="phone">
+      <div class="status"><span>20:45</span><span>●●● 81%</span></div>
+      <div class="appbar"><span class="back">←</span>Rejestracja</div>
+      <div class="content">
+        <div class="a"><div class="label">Nick*</div><div class="field ph">Nick</div><span class="ann">F4</span></div>
+        <div class="a"><div class="label">E-mail*</div><div class="field err">ola.kowalska@gmail</div><div class="help err">Nieprawidłowy format pola email</div><span class="ann">E6</span></div>
+        <div class="a"><div class="label">Data ur.*</div><div class="field ph">Data ur.</div><span class="ann">F2</span></div>
+        <div class="a"><div class="label">Hasło*</div><div class="field err">••••••••</div>
+          <div class="help err tech-text">ERR_AUTH_PASS_POLICY_VIOLATION_09</div>
+          <div class="help">Wprowadź poprawne i bezpieczne hasło zgodne z polityką bezpieczeństwa firmy z 2024 r.</div><span class="ann">F1</span></div>
+        <div class="spacer"></div>
+        <div class="btn primary a">Wyślij formularz<span class="ann">C3</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="tag after">PO</div>
+    <div class="phone">
+      <div class="status"><span>20:45</span><span>●●● 81%</span></div>
+      <div class="appbar"><span class="back">←</span>Załóż konto</div>
+      <div class="content">
+        <div class="a"><div class="label">Imię lub pseudonim</div><div class="field ph">np. Ola</div><div class="help">Tak zobaczą Cię znajomi we wspólnym wyborze.</div><span class="ann">F4</span></div>
+        <div class="a"><div class="label">E-mail</div><div class="field err">ola.kowalska@gmail</div><div class="help err">Dokończ adres, np. ola.kowalska@gmail.com</div><span class="ann">E6</span></div>
+        <div class="a"><div class="label">Data urodzenia <span class="info">i</span></div><div class="field ph">DD.MM.RRRR</div>
+          <div class="tooltip">Po to, by nie proponować filmów z wyższą kategorią wiekową. Nikt inny jej nie zobaczy.</div><span class="ann">F2</span></div>
+        <div class="a"><div class="label">Hasło</div><div class="field err">••••••••</div>
+          <div class="checklist"><span class="ok">co najmniej 8 znaków</span><span class="ok">wielka litera</span><span class="no">cyfra – dodaj jeszcze jedną</span></div><span class="ann">F1</span></div>
+        <div class="spacer"></div>
+        <div class="btn primary a">Załóż darmowe konto<span class="ann">C3</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 5. LOGOWANIE – BŁĄD =============== -->
+<section class="pair" id="pair-login">
+  <div class="col">
+    <div class="tag before">PRZED</div>
+    <div class="phone">
+      <div class="status"><span>20:46</span><span>●●● 80%</span></div>
+      <div class="appbar"><span class="back">←</span>Logowanie</div>
+      <div class="content">
+        <div class="alert tech a"><div>Wystąpił błąd krytyczny auth_fail_0x892. Złe zapytanie.</div><span class="ann">E1</span></div>
+        <div><div class="label">Login</div><div class="field">ola.kowalska@gmail.com</div></div>
+        <div><div class="label">Hasło</div><div class="field">••••••••••</div></div>
+        <div class="btn primary">OK</div>
+        <div class="spacer"></div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="tag after">PO</div>
+    <div class="phone">
+      <div class="status"><span>20:46</span><span>●●● 80%</span></div>
+      <div class="appbar"><span class="back">←</span>Zaloguj się</div>
+      <div class="content">
+        <div class="alert err a"><div><b>E-mail i hasło do siebie nie pasują</b>Sprawdź, czy nie masz włączonego Caps Lock, albo ustaw nowe hasło – wyślemy link na Twój e-mail.</div><span class="ann">E1</span></div>
+        <div><div class="label">E-mail</div><div class="field">ola.kowalska@gmail.com</div></div>
+        <div><div class="label">Hasło</div><div class="field err">••••••••••</div></div>
+        <div class="btn primary">Zaloguj się</div>
+        <div class="btn ghost">Nie pamiętam hasła</div>
+        <div class="spacer"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 6. PUSTA LISTA + TOAST =============== -->
+<section class="pair" id="pair-empty">
+  <div class="col">
+    <div class="tag before">PRZED</div>
+    <div class="phone">
+      <div class="status"><span>20:47</span><span>●●● 80%</span></div>
+      <div class="appbar">Watchlist</div>
+      <div class="content">
+        <div class="empty a"><p class="sub">Brak elementów.</p><span class="ann">P1</span></div>
+        <div class="toast a"><span>Operacja zakończona sukcesem.</span><span class="ann">E7</span></div>
+      </div>
+      <div class="tabbar"><span>Home</span><span>Szukaj</span><span class="on">Watchlist</span><span>Profil</span></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="tag after">PO</div>
+    <div class="phone">
+      <div class="status"><span>20:47</span><span>●●● 80%</span></div>
+      <div class="appbar">Na później</div>
+      <div class="content">
+        <div class="empty a">
+          <div class="illu">🍿</div>
+          <p class="h" style="font-size:18px">Nie masz jeszcze nic na później</p>
+          <p class="sub">Zapisuj filmy, które wpadną Ci w oko. Wieczorem wybierzesz z gotowej listy, zamiast szukać od zera.</p>
+          <div class="btn primary" style="align-self:stretch; margin-top:6px">Znajdź coś na dziś</div>
+          <span class="ann">P1</span>
+        </div>
+        <div class="toast a"><span>Usunięto „Diunę” z listy</span><span class="act">Cofnij</span><span class="ann">E7</span></div>
+      </div>
+      <div class="tabbar"><span>Dziś</span><span>Szukaj</span><span class="on">Na później</span><span>Profil</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 7. ANULOWANIE PREMIUM (dark pattern) =============== -->
+<section class="pair" id="pair-premium">
+  <div class="col">
+    <div class="tag before">PRZED</div>
+    <div class="phone">
+      <div class="status"><span>20:48</span><span>●●● 79%</span></div>
+      <div class="appbar"><span class="back">←</span>Subskrypcja</div>
+      <div class="content"><div class="card" style="height:120px"></div><div class="card" style="height:80px"></div></div>
+      <div class="scrim">
+        <div class="dialog a">
+          <p class="h">Czy na pewno chcesz nas zostawić i stracić wspólne wieczory filmowe? 😢</p>
+          <p class="sub">Twoi znajomi będą musieli wybierać bez Ciebie.</p>
+          <div class="btn" style="background:#b51fe6;color:#fff;height:58px;font-size:16px">Nie, chcę zachować super rabat -50%!</div>
+          <div class="center small" style="color:#b9b6c2;font-size:11px">tak, rezygnuję</div>
+          <span class="ann">D2</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="tag after">PO</div>
+    <div class="phone">
+      <div class="status"><span>20:48</span><span>●●● 79%</span></div>
+      <div class="appbar"><span class="back">←</span>Subskrypcja</div>
+      <div class="content"><div class="card" style="height:120px"></div><div class="card" style="height:80px"></div></div>
+      <div class="scrim">
+        <div class="dialog a">
+          <p class="h">Anulować Seans Premium?</p>
+          <p class="sub">Premium działa do 30 listopada 2026. Potem wrócisz do wersji darmowej. Twoje listy i oceny zostaną.</p>
+          <p class="small">Stracisz: wspólny wybór w grupie i powiadomienia o nowościach.</p>
+          <div class="btn secondary">Zachowaj Premium</div>
+          <div class="btn danger">Anuluj subskrypcję</div>
+          <span class="ann">D2</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 8. USUWANIE KONTA + DIALOG Z LISTY =============== -->
+<section class="pair" id="pair-delete">
+  <div class="col">
+    <div class="tag before">PRZED</div>
+    <div class="phone">
+      <div class="status"><span>20:49</span><span>●●● 79%</span></div>
+      <div class="appbar"><span class="back">←</span>Konto</div>
+      <div class="content"><div class="card" style="height:90px"></div><div class="card" style="height:140px"></div></div>
+      <div class="scrim">
+        <div class="dialog a">
+          <p class="h">Usuwanie konta</p>
+          <p class="sub">Czy na pewno chcesz kontynuować operację?</p>
+          <div class="btn primary" style="height:auto;padding:10px 12px">Nie, chcę zachować konto i nie tracić wszystkich zebranych punktów oraz promocji!</div>
+          <div class="btn ghost" style="color:#9a97a5">Tak, usuń</div>
+          <span class="ann">D3</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="tag after">PO</div>
+    <div class="phone">
+      <div class="status"><span>20:49</span><span>●●● 79%</span></div>
+      <div class="appbar"><span class="back">←</span>Konto</div>
+      <div class="content"><div class="card" style="height:90px"></div><div class="card" style="height:140px"></div></div>
+      <div class="scrim">
+        <div class="dialog a">
+          <p class="h">Usunąć konto na zawsze?</p>
+          <p class="sub">Usuniemy Twoje oceny, listy i ustawienia. Tego nie da się cofnąć. Aktywne Premium anuluj najpierw w sklepie z aplikacjami.</p>
+          <div class="btn secondary">Nie usuwaj</div>
+          <div class="btn danger-fill">Usuń konto</div>
+          <span class="ann">D3</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 9. DIALOG USUWANIA Z LISTY (Przypadek A) =============== -->
+<section class="pair" id="pair-remove">
+  <div class="col">
+    <div class="tag before">PRZED</div>
+    <div class="phone">
+      <div class="status"><span>20:50</span><span>●●● 78%</span></div>
+      <div class="appbar">Watchlist</div>
+      <div class="content"><div class="card" style="height:80px"></div><div class="card" style="height:80px"></div><div class="card" style="height:80px"></div></div>
+      <div class="scrim">
+        <div class="dialog a">
+          <p class="h">Uwaga</p>
+          <p class="sub">Czy na pewno?</p>
+          <div class="row"><div class="btn ghost">Anuluj</div><div class="btn ghost">OK</div></div>
+          <span class="ann">D1</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="tag after">PO</div>
+    <div class="phone">
+      <div class="status"><span>20:50</span><span>●●● 78%</span></div>
+      <div class="appbar">Na później</div>
+      <div class="content"><div class="card" style="height:80px"></div><div class="card" style="height:80px"></div><div class="card" style="height:80px"></div></div>
+      <div class="scrim">
+        <div class="dialog a">
+          <p class="h">Usunąć „Diunę: Część drugą” z listy?</p>
+          <p class="sub">Możesz ją później dodać ponownie.</p>
+          <div class="row"><div class="btn ghost">Zostaw</div><div class="btn ghost" style="color:var(--error)">Usuń z listy</div></div>
+          <span class="ann">D1</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============== 10. BŁĄD SIECI / BRAK WYNIKÓW =============== -->
+<section class="pair" id="pair-errors">
+  <div class="col">
+    <div class="tag before">PRZED</div>
+    <div class="phone">
+      <div class="status"><span>20:51</span><span>✕ 78%</span></div>
+      <div class="appbar">Wyniki</div>
+      <div class="content">
+        <div class="alert tech a"><div>Network error. Retry?</div><span class="ann">E2</span></div>
+        <div class="empty a"><p class="sub">Nie znaleziono wyników dla podanych kryteriów.</p><span class="ann">E5</span></div>
+        <div class="btn secondary">Odśwież</div>
+      </div>
+      <div class="tabbar"><span class="on">Home</span><span>Szukaj</span><span>Watchlist</span><span>Profil</span></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="tag after">PO</div>
+    <div class="phone">
+      <div class="status"><span>20:51</span><span>✕ 78%</span></div>
+      <div class="appbar">Propozycje</div>
+      <div class="content">
+        <div class="alert err a"><div><b>Brak internetu</b>Nowe propozycje pobierzemy, gdy połączenie wróci. Lista „Na później” działa bez sieci.</div><span class="ann">E2</span></div>
+        <div class="empty a"><div class="illu" style="width:84px;height:84px;font-size:34px">🎬</div>
+          <p class="h" style="font-size:17px">Nic nie spełnia wszystkich warunków</p>
+          <p class="sub">Spróbuj „bez limitu” czasu albo dodaj kolejną platformę.</p><span class="ann">E5</span></div>
+        <div class="btn secondary">Zmień warunki</div>
+      </div>
+      <div class="tabbar"><span class="on">Dziś</span><span>Szukaj</span><span>Na później</span><span>Profil</span></div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
